@@ -1,4 +1,24 @@
 {% extends 'base.html' %}
 {% block body %}
-Congrats, you've searched for reservations on {{ date }} from {{ start }} to {{ end }}
+Available appointments on {{ date }} from
+{% if null_start %}
+beginning of day
+{% else %}
+{{ start }}
+{% endif %}
+to
+{% if null_end %}
+end of day:
+{% else %}
+{{ end }}:
+{% endif %}
+
+{% for appt_time in appt_times %}
+<form method="POST" action="/book">
+    <input type="hidden" name="date" value={{ date }}>
+    <button type="submit" name="start_time" value="{{ appt_time }}">
+      {{ appt_time }}
+    </button><br> 
+  </form>
+{% endfor %}
 {% endblock %}

@@ -41,25 +41,46 @@ def search_results():
     if "user_id" not in session:
         flash("Please log in to view this page.")
         return redirect('/')
-    user = crud.get_user_by_id(session["user_id"])
-    date = request.args.get('date')
+    date_str = request.args.get('date')
+    date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+    if crud.user_has_res_on_date(session["user_id"], date_obj):
+        flash(f"You already have a tasting reservation on that day. Please select another day as we do not allow multiple reservations per day!")
+        return redirect('/home')
     start = request.args.get('start')
     end = request.args.get('end')
+    reservations = crud.get_reservations_for_day(date_obj)
+    booked = set()
+    for res in reservations:
+        booked.add(datetime.combine(res.date, res.start_time)) #this is a datetime.time() object 
     appt_times = []
-    reservations = user.reservations
     delta = timedelta(minutes = 30)
+    null_start = False
     if not start: # if start time is not given, begin at midnight 
+        null_start = True
         start = "00:00"
-    start = datetime.strptime(date+start,'%Y-%m-%d%H:%M')
+    start = datetime.strptime(date_str+start,'%Y-%m-%d%H:%M')
     start = datetime.min + math.ceil((start - datetime.min) / delta) * delta
+    null_end= False
     if not end: # if end time is not given, last appointment should start at 11:30 pm
-        end = datetime.strptime(date, '%Y-%m-%d') + timedelta(days=1) # set end datetime to midnight next day 
+        end = datetime.strptime(date_str, '%Y-%m-%d') + timedelta(days=1) # set end datetime to midnight next day 
+        null_end = True
     else:
-        end = datetime.strptime(date+end,'%Y-%m-%d%H:%M')
+        end = datetime.strptime(date_str+end,'%Y-%m-%d%H:%M')
         end = datetime.min + math.floor((end - datetime.min) / delta) * delta
-    # 
-    return render_template('results.html', date=date, start=start, end=end)
+    appt = start
+    while appt < end:
+        if appt not in booked: #appt is a datetime 
+            appt_times.append(appt.time())
+        appt = appt + timedelta(minutes = 30)
+    return render_template('results.html', date = date_obj.date(), start=start.time(), end=end.time(), appt_times = appt_times, null_start=null_start, null_end = null_end)
 
+@app.route('/book-reservation', methods = ['POST'])
+def book():
+    #check conflicting res
+    date = request.form.get("date")
+    start_time = request.form.get("start_time")
+    flash(f"Booked! See you on {date} at {start_time} for your 30 minute reservation!")
+    return redirect('/home')
 
 @app.route('/reservations')
 def get_results():

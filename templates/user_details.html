@@ -3,7 +3,7 @@
 {% if reservations %}
 Your existing reservations are as follows:
 {% for reservation in reservations %}
-<p>{{ reservation.start_datetime }}</p>
+<p>{{ reservation.date}} at {{ reservation.start_time }}</p>
 {% endfor %}
 {% else %}
 You don't currently have any reservations! 
