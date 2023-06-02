@@ -21,6 +21,12 @@ def user_has_res_on_date(user_id, date):
         return True
     else:
         return False
+    
+def res_booked_in_slot(date, time):
+    if Reservation.query.filter(Reservation.date == date, Reservation.start_time == time).first():
+        return True
+    else:
+        return False
 
 def get_user_by_email(email):
     return User.query.filter(User.email == email).first()

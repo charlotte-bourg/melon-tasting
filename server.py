@@ -51,7 +51,7 @@ def search_results():
     reservations = crud.get_reservations_for_day(date_obj)
     booked = set()
     for res in reservations:
-        booked.add(datetime.combine(res.date, res.start_time)) #this is a datetime.time() object 
+        booked.add(datetime.combine(res.date, res.start_time)) 
     appt_times = []
     delta = timedelta(minutes = 30)
     null_start = False
@@ -69,17 +69,29 @@ def search_results():
         end = datetime.min + math.floor((end - datetime.min) / delta) * delta
     appt = start
     while appt < end:
-        if appt not in booked: #appt is a datetime 
+        if appt not in booked: 
             appt_times.append(appt.time())
         appt = appt + timedelta(minutes = 30)
     return render_template('results.html', date = date_obj.date(), start=start.time(), end=end.time(), appt_times = appt_times, null_start=null_start, null_end = null_end)
 
-@app.route('/book-reservation', methods = ['POST'])
+@app.route('/book', methods = ['POST'])
 def book():
     #check conflicting res
-    date = request.form.get("date")
-    start_time = request.form.get("start_time")
-    flash(f"Booked! See you on {date} at {start_time} for your 30 minute reservation!")
+    if "user_id" not in session:
+        flash("Please log in to view this page.")
+        return redirect('/')
+    user_id = session["user_id"]
+    date_str = request.form.get("date")
+    start_time_str = request.form.get("start_time")
+    date = datetime.strptime(date_str,'%Y-%m-%d')
+    start_time = datetime.strptime(start_time_str, '%H:%M:%S').time()
+    if crud.res_booked_in_slot(date, start_time): 
+         flash(f'Oh no! Someone has booked that time since you searched for available appointments. Please select another time.')
+    else:
+        res = crud.create_reservation(date, start_time, user_id)
+        db.session.add(res)
+        db.session.commit()
+        flash(f"Booked! See you on {date_str} at {start_time_str} for your 30 minute reservation!")
     return redirect('/home')
 
 @app.route('/reservations')
