@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block body %}
+Welcome to Melon Reservations!
+
+Please enter your email to get started: 
+<form action="/login" method="POST">
+    <p>
+      Email <input type="text" name="email">
+    </p>
+    <p>
+      <input type="submit">
+    </p>
+</form>
+
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block body %}
+
+<form action="/search">
+    <p>
+        Enter the date of the reservation you would like: <input type="date" name="date">
+    </p>
+    <p>
+        (Optional) enter a time range to return appointments in that range: 
+        <br>
+        Start: <input name="start" type="time">
+        End: <input name="end" type="time">
+    </p>
+    <p>
+      <input type="submit">
+    </p>
+</form>
+{% endblock %}
