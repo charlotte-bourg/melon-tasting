@@ -1,9 +1,11 @@
 {% extends 'base.html' %}
 {% block body %}
 
+<a href='/reservations'>See your existing reservations</a>
+
 <form action="/search">
     <p>
-        Enter the date of the reservation you would like: <input type="date" name="date">
+        Enter the date of the reservation you would like: <input type="date" name="date" required>
     </p>
     <p>
         (Optional) enter a time range to return appointments in that range: 

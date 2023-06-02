@@ -22,12 +22,13 @@ class Reservation(db.Model):
     reservation_id = db.Column(db.Integer,
                         autoincrement=True,
                         primary_key=True)
+    start_datetime = db.Column(db.DateTime)
     user_id = db.Column(db.Integer, db.ForeignKey("users.user_id"))
 
     user = db.relationship("User", back_populates = "reservations")
 
     def __repr__(self):
-        return f'<Reservation reservation_id={self.reservation_id} user={self.user_id}>'
+        return f'<Reservation reservation_id={self.reservation_id} user={self.user_id} start_datetime = {self.start_datetime}>'
     
 # class Movie(db.Model):
 #     """A movie."""
